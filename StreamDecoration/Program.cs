@@ -24,34 +24,35 @@ namespace StreamDecoration
 
         public override void Flush()
         {
-            throw new NotImplementedException();
+            streamDecorated.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new NotImplementedException();
+           Console.WriteLine($"Progress is: {streamDecorated.Length/streamDecorated.Position}%");
+           return streamDecorated.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotImplementedException();
+            return streamDecorated.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
         {
-            throw new NotImplementedException();
+            streamDecorated.SetLength(value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new NotImplementedException();
+            streamDecorated.Write(buffer, offset, count);
         }
     }
     class Program
     {
         static void Main()
         {
-
+            
         }
     }
 }
