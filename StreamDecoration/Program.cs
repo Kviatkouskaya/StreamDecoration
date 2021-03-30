@@ -66,11 +66,12 @@ namespace StreamDecoration
             using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
             {
                 byte[] byteArray = new byte[500];
-                int byteResult = decoration.Read(byteArray,0,500);
-                while (byteResult!=0)
+                int byteResult;
+                do
                 {
-                    byteResult = decoration.Read(byteArray, 0, 500);
+                    byteResult = decoration.Read(byteArray, 0, byteArray.Length);
                 }
+                while (byteResult != 0);
             }
         }
     }
