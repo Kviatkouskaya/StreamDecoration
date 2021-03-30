@@ -3,7 +3,7 @@ using System.IO;
 
 namespace StreamDecoration
 {
-    class Decoration: Stream
+    class Decoration : Stream
     {
         private Stream streamDecorated;
         public Decoration(Stream s)
@@ -11,7 +11,7 @@ namespace StreamDecoration
             streamDecorated = s;
         }
 
-        public override bool CanRead=> streamDecorated.CanRead;
+        public override bool CanRead => streamDecorated.CanRead;
 
         public override bool CanSeek => streamDecorated.CanSeek;
 
@@ -19,8 +19,11 @@ namespace StreamDecoration
 
         public override long Length => streamDecorated.Length;
 
-        public override long Position { get => streamDecorated.Position; 
-                                        set => _ = streamDecorated.Position; }
+        public override long Position
+        {
+            get => streamDecorated.Position;
+            set => _ = streamDecorated.Position;
+        }
 
         public override void Flush()
         {
@@ -29,8 +32,15 @@ namespace StreamDecoration
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-           Console.WriteLine($"Progress is: {streamDecorated.Length/streamDecorated.Position}%");
-           return streamDecorated.Read(buffer, offset, count);
+            if (streamDecorated.Length != streamDecorated.Position)
+            {
+                Console.WriteLine($"\nProgress is: {Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 2)}%");
+            }
+            else
+            {
+                Console.WriteLine($"\nProgress is: 100%");
+            }
+            return streamDecorated.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -52,7 +62,16 @@ namespace StreamDecoration
     {
         static void Main()
         {
-            
+            string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
+            using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
+            {
+                byte[] byteArray = new byte[500];
+                int byteResult = decoration.Read(byteArray,0,500);
+                while (byteResult!=0)
+                {
+                    byteResult = decoration.Read(byteArray, 0, 500);
+                }
+            }
         }
     }
 }
