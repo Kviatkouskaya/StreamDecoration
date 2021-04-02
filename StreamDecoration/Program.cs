@@ -57,21 +57,39 @@ namespace StreamDecoration
         {
             streamDecorated.Write(buffer, offset, count);
         }
+
+        public void EnterPassword()
+        {
+            Console.WriteLine("Enter password:");
+            string line = Console.ReadLine();
+            if (line != "1111"||string.Empty==line)
+            {
+                throw new ArgumentException("\nWrong password! Acsess denied...");
+            }
+        }
     }
     class Program
     {
         static void Main()
         {
-            string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
-            using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
+            try
             {
-                byte[] byteArray = new byte[500];
-                int byteResult;
-                do
+                string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
+                using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
-                    byteResult = decoration.Read(byteArray, 0, byteArray.Length);
+                    decoration.EnterPassword();
+                    byte[] byteArray = new byte[500];
+                    int byteResult;
+                    do
+                    {
+                        byteResult = decoration.Read(byteArray, 0, byteArray.Length);
+                    }
+                    while (byteResult != 0);
                 }
-                while (byteResult != 0);
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
             }
         }
     }
