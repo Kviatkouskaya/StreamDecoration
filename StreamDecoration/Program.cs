@@ -62,7 +62,7 @@ namespace StreamDecoration
         {
             Console.WriteLine("Enter password:");
             string line = Console.ReadLine();
-            if (line != "1111"||string.Empty==line)
+            if (line != "1111" || string.Empty == line)
             {
                 throw new ArgumentException("\nWrong password! Acsess denied...");
             }
