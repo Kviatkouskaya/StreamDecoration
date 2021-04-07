@@ -5,7 +5,7 @@ namespace StreamDecoration
 {
     class Progress
     {
-        public void PrintProgress(double number)
+        public static void PrintProgress(double number)
         {
             Console.WriteLine($"Progress is: {number} %");
         }
@@ -104,8 +104,7 @@ namespace StreamDecoration
                 string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
                 using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
-                    Progress progress = new();
-                    decoration.InProgress += progress.PrintProgress;
+                    decoration.InProgress += Progress.PrintProgress;
 
                     byte[] byteArray = new byte[200];
                     int byteResult;
