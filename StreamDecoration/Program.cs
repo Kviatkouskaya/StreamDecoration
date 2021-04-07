@@ -32,6 +32,7 @@ namespace StreamDecoration
 
         public override int Read(byte[] buffer, int offset, int count)
         {
+            EnterPassword();
             if (streamDecorated.Length != streamDecorated.Position)
             {
                 Console.WriteLine($"\nProgress is: {Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 2)}%");
@@ -77,7 +78,6 @@ namespace StreamDecoration
                 string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
                 using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
-                    decoration.EnterPassword();
                     byte[] byteArray = new byte[500];
                     int byteResult;
                     do
