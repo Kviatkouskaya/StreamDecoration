@@ -8,8 +8,6 @@ namespace StreamDecoration
         private readonly Stream streamDecorated;
         public delegate void ProgressCheck(double number);
         public event ProgressCheck InProgress;
-        public double percent;
-
         public Decoration(Stream s)
         {
             streamDecorated = s;
@@ -36,7 +34,7 @@ namespace StreamDecoration
         public override int Read(byte[] buffer, int offset, int count)
         {
             //CheckPassword();
-            percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
+            double percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
             if (percent % 10 == 0)
             {
                 InProgress(percent);
@@ -79,7 +77,7 @@ namespace StreamDecoration
                 string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
                 using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
-                    decoration.InProgress += (double x) => Console.WriteLine($"Progress is: {decoration.percent} %");
+                    decoration.InProgress += (double percent) => Console.WriteLine($"Progress is: {percent} %");
                     byte[] byteArray = new byte[200];
                     int byteResult;
                     do
