@@ -8,6 +8,9 @@ namespace StreamDecoration
         private readonly Stream streamDecorated;
         public delegate void ProgressCheck(double number);
         public event ProgressCheck InProgress;
+        public delegate void AccessRequest();
+        public event AccessRequest AccessCheck;
+        public bool accessCondition;
         public Decoration(Stream s)
         {
             streamDecorated = s;
@@ -33,13 +36,23 @@ namespace StreamDecoration
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            //CheckPassword();
-            double percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
-            if (percent % 10 == 0)
+            if (streamDecorated.Position == 0)
             {
-                InProgress(percent);
+                AccessCheck();
             }
-            return streamDecorated.Read(buffer, offset, count);
+            if (accessCondition)
+            {
+                double percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
+                if (percent % 10 == 0)
+                {
+                    InProgress(percent);
+                }
+                return streamDecorated.Read(buffer, offset, count);
+            }
+            else
+            {
+                throw new AccessViolationException("Access denied...");
+            }
         }
         public override long Seek(long offset, SeekOrigin origin)
         {
@@ -55,18 +68,6 @@ namespace StreamDecoration
         {
             streamDecorated.Write(buffer, offset, count);
         }
-
-        /*
-         public static void CheckPassword()
-         {
-             Console.WriteLine("Enter password:");
-             string line = Console.ReadLine();
-             if (line != "11" || string.Empty == line)
-             {
-                 throw new ArgumentException("\nWrong password! Acsess denied...");
-             }
-         }
-        */
     }
     class Program
     {
@@ -77,6 +78,12 @@ namespace StreamDecoration
                 string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
                 using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
+                    decoration.AccessCheck += () =>
+                      {
+                          Console.WriteLine("Enter password before reading:");
+                          string password = Console.ReadLine();
+                          _ = (password == "11") ? decoration.accessCondition = true : decoration.accessCondition = false;
+                      };
                     decoration.InProgress += (double percent) => Console.WriteLine($"Progress is: {percent} %");
                     byte[] byteArray = new byte[200];
                     int byteResult;
@@ -88,6 +95,10 @@ namespace StreamDecoration
                 }
             }
             catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            catch(AccessViolationException e)
             {
                 Console.WriteLine(e.Message);
             }
