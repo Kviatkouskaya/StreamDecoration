@@ -8,9 +8,7 @@ namespace StreamDecoration
         private readonly Stream streamDecorated;
         public delegate void ProgressCheck(double number);
         public event ProgressCheck InProgress;
-        public delegate void AccessRequest();
-        public event AccessRequest AccessCheck;
-        public bool accessCondition;
+        public string accessCondition;
         public Decoration(Stream s)
         {
             streamDecorated = s;
@@ -36,11 +34,7 @@ namespace StreamDecoration
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (streamDecorated.Position == 0)
-            {
-                AccessCheck();
-            }
-            if (accessCondition)
+            if (accessCondition=="pass")
             {
                 double percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
                 if (percent % 10 == 0)
@@ -51,7 +45,7 @@ namespace StreamDecoration
             }
             else
             {
-                throw new AccessViolationException("Access denied...");
+                throw new AccessViolationException("Wrong password! Access denied...");
             }
         }
         public override long Seek(long offset, SeekOrigin origin)
@@ -68,6 +62,11 @@ namespace StreamDecoration
         {
             streamDecorated.Write(buffer, offset, count);
         }
+        public void RequestAccess()
+        {
+            Console.WriteLine("Enter password:");
+            accessCondition = Console.ReadLine();
+        }
     }
     class Program
     {
@@ -78,12 +77,7 @@ namespace StreamDecoration
                 string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
                 using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
-                    decoration.AccessCheck += () =>
-                      {
-                          Console.WriteLine("Enter password before reading:");
-                          string password = Console.ReadLine();
-                          _ = (password == "11") ? decoration.accessCondition = true : decoration.accessCondition = false;
-                      };
+                    decoration.RequestAccess();
                     decoration.InProgress += (double percent) => Console.WriteLine($"Progress is: {percent} %");
                     byte[] byteArray = new byte[200];
                     int byteResult;
