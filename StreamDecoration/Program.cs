@@ -9,6 +9,7 @@ namespace StreamDecoration
         public delegate void ProgressCheck(double number);
         public event ProgressCheck InProgress;
         public string accessCondition;
+        public double readProgress;
         public Decoration(Stream s)
         {
             streamDecorated = s;
@@ -34,14 +35,15 @@ namespace StreamDecoration
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (accessCondition=="pass")
+            if (accessCondition == "pass")
             {
                 double percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
-                if (percent % 10 == 0)
+                if (percent % 10 == 0 && percent != readProgress)
                 {
                     InProgress(percent);
+                    readProgress = percent;
                 }
-                return streamDecorated.Read(buffer, offset, count);
+                return streamDecorated.Read(buffer, offset, count / 10);
             }
             else
             {
@@ -74,9 +76,10 @@ namespace StreamDecoration
         {
             try
             {
-                string readPath = @"c:\Users\ollik\source\repos\DecorationPattern.txt";
+                string readPath = @"c:\Books\C_Sharp\YazykProgrCSh7.pdf";
                 using (Decoration decoration = new(new FileStream(readPath, FileMode.Open)))
                 {
+                    decoration.readProgress = -1;
                     decoration.RequestAccess();
                     decoration.InProgress += (double percent) => Console.WriteLine($"Progress is: {percent} %");
                     byte[] byteArray = new byte[200];
@@ -92,7 +95,7 @@ namespace StreamDecoration
             {
                 Console.WriteLine(e.Message);
             }
-            catch(AccessViolationException e)
+            catch (AccessViolationException e)
             {
                 Console.WriteLine(e.Message);
             }
