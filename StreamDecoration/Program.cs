@@ -37,13 +37,20 @@ namespace StreamDecoration
         {
             if (accessCondition == "pass")
             {
-                double percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 0);
-                if (percent % 10 == 0 && percent != readProgress)
+                double percent = readProgress;
+                int cnt = 0;
+                while (percent % 10 != 0)
                 {
-                    InProgress(percent);
-                    readProgress = percent;
+                    percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 5);
+                    cnt += streamDecorated.Read(buffer, offset, count / 10);
+                    if (percent % 10 == 0 && percent != readProgress)
+                    {
+                        InProgress(percent);
+                        readProgress = percent;
+                    }
                 }
-                return streamDecorated.Read(buffer, offset, count / 10);
+                readProgress += 1;
+                return cnt;
             }
             else
             {
@@ -82,7 +89,7 @@ namespace StreamDecoration
                     decoration.readProgress = -1;
                     decoration.RequestAccess();
                     decoration.InProgress += (double percent) => Console.WriteLine($"Progress is: {percent} %");
-                    byte[] byteArray = new byte[200];
+                    byte[] byteArray = new byte[100];
                     int byteResult;
                     do
                     {
