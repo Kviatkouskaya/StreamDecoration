@@ -42,7 +42,11 @@ namespace StreamDecoration
                 while (percent % 10 != 0)
                 {
                     percent = Math.Round((double)streamDecorated.Position / streamDecorated.Length * 100, 5);
-                    cnt += streamDecorated.Read(buffer, offset, count / 10);
+                    cnt += streamDecorated.Read(buffer, offset + cnt, count / 10);
+                    if (streamDecorated.Position == streamDecorated.Length)
+                    {
+                        percent += 10;
+                    }
                     if (percent % 10 == 0 && percent != readProgress)
                     {
                         InProgress(percent);
@@ -89,13 +93,15 @@ namespace StreamDecoration
                     decoration.readProgress = -1;
                     decoration.RequestAccess();
                     decoration.InProgress += (double percent) => Console.WriteLine($"Progress is: {percent} %");
-                    byte[] byteArray = new byte[100];
-                    int byteResult;
+                    byte[] byteArray = new byte[decoration.Length];
+                    int byteResult = 0;
                     do
                     {
-                        byteResult = decoration.Read(byteArray, 0, byteArray.Length);
+                        byteResult += decoration.Read(byteArray, byteResult, byteArray.Length);
                     }
-                    while (byteResult != 0);
+                    while (byteResult < byteArray.Length);
+
+                    File.WriteAllBytes(@"c:\Books\C_Sharp\New.pdf", byteArray);
                 }
             }
             catch (ArgumentException e)
